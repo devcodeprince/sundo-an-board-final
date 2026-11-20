@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Official community announcements, advisories, and barangay officials availability for Barangay Sundo-an.">
+  <title>Barangay Sundo-an Community Announcement Board</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+
+  <style>
+    /* Minimal safety styles so the page stays accessible even if style.css fails to load */
+    body { font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      margin: -1px; padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-banner" role="status">
+    Student Prototype Proposal for Barangay Sundo-an, made for demonstration purposes only. This is not yet an active emergency dispatch line, so please call your local emergency hotline for urgent help.
+  </div>
+
+  <header>
+    <img src="logo.jpg" id="barangay-logo" alt="Barangay Sundo-an official seal">
+    <div class="header-text">
+      <h1>Barangay Sundo-an</h1>
+      <p>Community Announcement Board</p>
+    </div>
+  </header>
+
+  <section id="search-bar">
+    <label for="search-input" class="visually-hidden">Search announcements</label>
+    <input type="text" id="search-input" placeholder="Search announcements by title or keyword" autocomplete="off">
+  </section>
+
+  <nav id="filters" aria-label="Announcement categories">
+    <button type="button" class="filter-btn active" data-category="all">All</button>
+    <button type="button" class="filter-btn" data-category="emergency">Emergency</button>
+    <button type="button" class="filter-btn" data-category="health">Health</button>
+    <button type="button" class="filter-btn" data-category="sports">Sports</button>
+    <button type="button" class="filter-btn" data-category="events">Events</button>
+    <button type="button" class="filter-btn" data-category="seminars">Seminars</button>
+    <button type="button" class="filter-btn" data-category="services">Services</button>
+    <button type="button" class="filter-btn" data-category="livelihood">Livelihood</button>
+    <button type="button" class="filter-btn" data-category="general">General</button>
+    <button type="button" class="filter-btn" data-category="pinned">Pinned</button>
+  </nav>
+
+  <main id="announcements-container" aria-live="polite">
+    <p id="loading-text">Loading announcements...</p>
+  </main>
+
+    <!-- Hidden Admin Panel (Toggled via Footer) -->
+    <section id="admin-panel" aria-labelledby="admin-studio-heading" style="display: none;">
+        <div class="admin-header">
+            <h2 id="admin-studio-heading">Barangay Admin Studio</h2>
+            <button type="button" id="admin-logout-btn" class="logout-btn" style="display: none;">Log out</button>
+        </div>
+
+        <div class="admin-login">
+            <label for="admin-password" class="visually-hidden">Admin password</label>
+            <input type="password" id="admin-password" placeholder="Enter the admin password">
+            <button type="button" id="admin-login-btn">Login</button>
+        </div>
+
+        <div id="admin-controls" style="display: none;">
+            <div class="composer-grid">
+                <!-- Left Column: Draft Form -->
+                <div class="composer-form">
+                    <label for="admin-title" class="field-label">Announcement title</label>
+                    <input type="text" id="admin-title" placeholder="Write a short, clear title">
+
+                    <label for="admin-content" class="field-label">Announcement details</label>
+                    <textarea id="admin-content" rows="4" placeholder="Share the date, time, place, and any steps residents should take"></textarea>
+
+                    <div class="composer-row">
+                        <div class="composer-field">
+                            <label for="admin-category" class="field-label">Category</label>
+                            <select id="admin-category">
+                                <option value="emergency">Emergency</option>
+                                <option value="health">Health</option>
+                                <option value="sports">Sports</option>
+                                <option value="events">Events</option>
+                                <option value="seminars">Seminars</option>
+                                <option value="services">Services</option>
+                                <option value="livelihood">Livelihood</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+
+                        <label for="admin-pinned" class="pin-checkbox-label">
+                            <input type="checkbox" id="admin-pinned">
+                            <span>Official Pin</span>
+                        </label>
+                    </div>
+
+                    <span class="field-label">Photo (optional)</span>
+                    <label for="admin-image-file" id="upload-dropzone-label" class="upload-dropzone">
+                        <span id="upload-status-text">Click to add a photo from your device</span>
+                        <small>Supports JPG, PNG, or WebP (max 5MB)</small>
+                    </label>
+                    <input type="file" id="admin-image-file" class="visually-hidden" accept="image/jpeg,image/png,image/webp">
+
+                    <button type="button" id="admin-post-btn">Post Announcement</button>
+                </div>
+
+                <!-- Right Column: Live Card Preview -->
+                <div class="composer-preview">
+                    <p class="preview-heading">Live Card Preview</p>
+
+                    <div id="image-crop-controls" class="crop-controls" style="display: none;">
+                        <div class="crop-row">
+                            <label for="crop-ratio">Image framing:</label>
+                            <select id="crop-ratio">
+                                <option value="banner">Wide Banner (16:9)</option>
+                                <option value="square">Square Post (1:1)</option>
+                                <option value="fit">Full Poster (No Crop)</option>
+                            </select>
+                        </div>
+                        <div id="zoom-row" class="crop-row">
+                            <label for="crop-zoom">Zoom:</label>
+                            <input type="range" id="crop-zoom" min="1" max="2.5" step="0.05" value="1">
+                            <small class="drag-hint">Drag photo below to reposition</small>
+                        </div>
+                    </div>
+
+                    <article class="announcement-card">
+                        <img id="preview-image" class="card-image draggable-preview" src="" alt="Live preview of selected announcement photo" style="display: none;">
+                        <div class="card-header-row">
+                            <span id="preview-category" class="card-category">emergency</span>
+                            <div class="card-actions">
+                                <button type="button" id="preview-pin" class="pin-btn" disabled>Pin</button>
+                            </div>
+                        </div>
+                        <h3 id="preview-title">Announcement Title Preview</h3>
+                        <p class="card-meta">Just now</p>
+                        <p id="preview-content">Start typing on the left or choose a photo to see how your announcement will look to residents.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Barangay Officials Availability Board -->
+    <section id="availability-board" aria-labelledby="officials-heading">
+        <h2 id="officials-heading">Barangay Officials</h2>
+        <p class="board-note">Office hours: Monday to Friday, 8:00 AM – 5:00 PM at the Barangay Hall.</p>
+
+        <div class="official-cards-grid">
+            <article class="official-card">
+                <h3>Punong Barangay</h3>
+                <p>Barangay Captain</p>
+                <p>Contact: 123-456-7890</p>
+                <span class="status">Out of office</span>
+            </article>
+
+            <article class="official-card">
+                <h3>Barangay Secretary</h3>
+                <p>Records and certificates</p>
+                <p>Contact: 123-456-7891</p>
+                <span class="status">Out of office</span>
+            </article>
+
+            <article class="official-card">
+                <h3>Barangay Treasurer</h3>
+                <p>Community funds and clearances</p>
+                <p>Contact: 123-456-7892</p>
+                <span class="status">Out of office</span>
+            </article>
+
+            <article class="official-card">
+                <h3>SK Chairperson</h3>
+                <p>Youth programs and sports</p>
+                <p>Contact: 123-456-7893</p>
+                <span class="status">Out of office</span>
+            </article>
+
+            <article class="official-card">
+                <h3>Barangay Kagawad</h3>
+                <p>Council member on duty</p>
+                <p>Contact: 123-456-7894</p>
+                <span class="status">Out of office</span>
+            </article>
+
+            <article class="official-card">
+                <h3>Barangay Health Worker</h3>
+                <p>Health checks and referrals</p>
+                <p>Contact: 123-456-7895</p>
+                <span class="status">Out of office</span>
+            </article>
+
+            <article class="official-card">
+                <h3>Barangay Tanod</h3>
+                <p>Peace and order patrol</p>
+                <p>Contact: 123-456-7890</p>
+                <span class="status">Out of office</span>
+            </article>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div id="footer-contact">
+            <h2>Contact Us</h2>
+            <p>Email: Barangaysundo-an@gmail.com</p>
+            <p>Phone: 123-456-7890</p>
+        </div>
+        <div id="footer-social">
+            <h2>Follow Us</h2>
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">Barangay Sundo-an on Facebook</a>
+        </div>
+        <div id="footer-bottom">
+            <small onclick="toggleAdmin()" tabindex="0" role="button">Barangay Sundo-an &copy; 2026</small>
+        </div>
+    </footer>
+  <script src="script.js"></script>
+</body>
+</html>
